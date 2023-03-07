@@ -9,15 +9,33 @@ In this demo we will build Harness CI pipeline that will use GKE as its build in
 - [Google Cloud Account](https://cloud.google.com)
   - With a Service Account with roles
     - `Kubernetes Engine Admin` - to create GKE cluster
-    - `Service Account User`    - to use other needed service accounts
+    - `Service Account` roles used to create/update/delete Service Account
+      - \_iam.serviceAccounts.actAs\_
+      - \_iam.serviceAccounts.get\_
+      - \_iam.serviceAccounts.create\_
+      - \_iam.serviceAccounts.delete\_
+      - \_iam.serviceAccounts.update\_
+      - \_iam.serviceAccounts.get\_
+      - \_iam.serviceAccounts.getIamPolicy\_
+      - \_iam.serviceAccounts.setIamPolicy\_
+     Or simply you can add `Service Account Admin` and `Service Account User` roles
     - `Compute Network Admin`   - to create the VPC networks
-  - Enable Cloud Translation API on the Google Cloud Project
+  - Enable Cloud Run API on the Google Cloud Project, if you plan to deploy to Google Cloud Run
 - [Google Cloud SDK](https://cloud.google.com/sdk)
 - [terraform](https://terraform.build)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
-- [helm](https://helm.sh)(Optional)
-- [kustomize](https://kustomize.io)(Optional)
-- [direnv](https://direnv.net)(Optional)
+- [helm](https://helm.sh)
+- [Taskfile](https://taskfile.dev)
+
+Ensure that you have the following Harness Account Details,
+
+- Harness Account ID
+- Harness Delegate Token
+
+### Optional tools
+
+- [kustomize](https://kustomize.io)
+- [direnv](https://direnv.net)
 
 ## Download Sources
 
@@ -26,6 +44,14 @@ Clone the sources,
 ```shell
 git clone https://github.com/harness-apps/workload-identity-gke-demo.git && cd "$(basename "$_" .git)"
 export DEMO_HOME="$PWD"
+```
+
+> **Tip**: If you are using zsh, then you can use the following commands
+>
+>```shell
+> take  https://github.com/harness-apps/workload-identity-gke-demo.git
+> export DEMO_HOME="$PWD"
+>
 ```
 
 ## Environment Setup
@@ -45,7 +71,7 @@ You can find more information about gcloud cli configurations at <https://cloud.
 As you may need to override few terraform variables that you don't want to check in to VCS, add them to a file called `<name>.local.tfvars` and set the following environment variable to be picked up by terraform runs,
 
 ```shell
-export TFVARS_FILE=<name>.local.tfvars
+export TFVARS_FILE=.local.tfvars
 ```
 
 >**NOTE**: All `.local.tfvars` file are git ignored by this template.
@@ -59,8 +85,18 @@ Check the [Inputs](#inputs) section for all possible variables that are configur
 | <a name="input_app_ksa"></a> [app\_ksa](#input\_app\_ksa) | the kubernetes service account that will be used to run the lingua-greeter deployment | `string` | `"lingua-greeter"` | no |
 | <a name="input_app_namespace"></a> [app\_namespace](#input\_app\_namespace) | the kubernetes namespace where the lingua-greeter demo application will be deployed | `string` | `"demo-apps"` | no |
 | <a name="input_app_use_workload_identity"></a> [app\_use\_workload\_identity](#input\_app\_use\_workload\_identity) | Flag to enable/disable application(pod) from using Workload Identity | `bool` | `false` | no |
+| <a name="input_builder_ksa"></a> [builder\_ksa](#input\_builder\_ksa) | the kubernetes service account that will be used to run the Harness delegate builder pods, which is enabled with Workload Identity | `string` | `"harness-builder"` | no |
+| <a name="input_builder_namespace"></a> [builder\_namespace](#input\_builder\_namespace) | the namespace where all Harness builder pods will be run | `string` | `"default"` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | the gke cluster name | `string` | `"my-demos"` | no |
 | <a name="input_gke_num_nodes"></a> [gke\_num\_nodes](#input\_gke\_num\_nodes) | number of gke nodes | `number` | `2` | no |
+| <a name="input_harness_account_id"></a> [harness\_account\_id](#input\_harness\_account\_id) | Harness Account Id to use while installing the delegate | `string` | n/a | yes |
+| <a name="input_harness_delegate_image"></a> [harness\_delegate\_image](#input\_harness\_delegate\_image) | The Harness delegate image to use | `string` | `"harness/delegate:23.02.78306"` | no |
+| <a name="input_harness_delegate_name"></a> [harness\_delegate\_name](#input\_harness\_delegate\_name) | The Harness Delegate name | `string` | `"harness-delegate"` | no |
+| <a name="input_harness_delegate_namespace"></a> [harness\_delegate\_namespace](#input\_harness\_delegate\_namespace) | The Harness Delegate Kubernetes namespace | `string` | `"harness-delegate-ng"` | no |
+| <a name="input_harness_delegate_replicas"></a> [harness\_delegate\_replicas](#input\_harness\_delegate\_replicas) | The Harness delegate kubernetes replica count | `number` | `1` | no |
+| <a name="input_harness_delegate_token"></a> [harness\_delegate\_token](#input\_harness\_delegate\_token) | Harness Delegate token | `string` | n/a | yes |
+| <a name="input_harness_manager_endpoint"></a> [harness\_manager\_endpoint](#input\_harness\_manager\_endpoint) | The Harness SaaS manager endpoint to use | `string` | n/a | yes |
+| <a name="input_install_harness_delegate"></a> [install\_harness\_delegate](#input\_install\_harness\_delegate) | Flag to install Harness Delegate | `bool` | `true` | no |
 | <a name="input_kubernetes_version"></a> [kubernetes\_version](#input\_kubernetes\_version) | the kubernetes versions of the GKE clusters | `string` | `"1.24."` | no |
 | <a name="input_machine_type"></a> [machine\_type](#input\_machine\_type) | the google cloud machine types for each cluster node | `string` | `"e2-standard-4"` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | project id | `any` | n/a | yes |
@@ -69,7 +105,20 @@ Check the [Inputs](#inputs) section for all possible variables that are configur
 
 ### Example
   
-An example `my.local.tfvars` that will use a Google Cloud project **my-awesome-project**, create a two node GKE cluster named **wi-demo** in region **asia-south1** with Kubernetes version **1.24.** from **stable** release channel. The machine type of each cluster node will be **e2-standard-4**. The demo will be deployed in Kubernetes namespace **demo-apps**, will use **lingua-greeter** as the Kubernetes Service Account.
+An example `my.local.tfvars` that will use a Google Cloud project **my-awesome-project**, create a two node GKE cluster named **wi-demo** in region **asia-south1** with Kubernetes version **1.24.** from **stable** release channel. The machine type of each cluster node will be **e2-standard-4**.
+
+You may need to update following values with actuals from your Harness Account,
+
+- `harness_account_id`
+- `harness_delegate_token`
+- `harness_delegate_namespace`
+- `harness_manager_endpoint`
+
+> **NOTE**:
+> 
+> - `harness_manager_endpoint` value is can be found here <https://developer.harness.io/tutorials/platform/install-delegate/>, to right endpoint check for your **Harness Cluster Hosting Account** from the Harness Account Overview page.
+> In the example above my **Harness Cluster Hosting Account** is **prod-2** and its endpoint is <https://app.harness.io/gratis>
+>
 
 ```hcl
 project_id                 = "pratyakshika"
@@ -85,102 +134,63 @@ harness_manager_endpoint   = "https://app.harness.io/gratis"
 ```
 
 > **NOTE**: For rest of the section we assume that your tfvars file is called `my.local.tfvars`
->
-> - `harness_manager_endpoint` value is can be found here <https://developer.harness.io/tutorials/platform/install-delegate/>, to right endpoint check for your **Harness Cluster Hosting Account** from the Harness Account Overview page.
-> In the example above my **Harness Cluster Hosting Account** is **prod-2** and its endpoint is <https://app.harness.io/gratis>
-> 
 
 ## Create Environment
 
 We will use terraform to create a GKE cluster with `WorkloadIdentity` enabled for its nodes,
 
 ```shell
-make apply
+task init
 ```
+
+### Create GKE cluster
 
 The terraform apply will create the following Google Cloud resources,
 
+```shell
+task create_cluster
+```
+
 - A Kubernetes cluster on GKE
 - A Google Cloud VPC that will be used with GKE
+  
+### Deploy Harness Delegate
 
-## Create Pipeline
+> **IMPORTANT**: Ensure you have the following values set in the `.local.tfvars`
+>
+> - `harness_account_id`
+> - `harness_delegate_token`
+> - `harness_delegate_name`
+> - `harness_delegate_namespace`
+> - `harness_manager_endpoint`
+>
 
-```yaml
-pipeline:
-  name: REPLACE ME
-  identifier: REPLACE ME
-  projectIdentifier: REPLACE ME
-  orgIdentifier: default
-  tags: {}
-  properties:
-    ci:
-      codebase:
-        connectorRef: account.Github
-        repoName: harness-apps/workload-identity-gke-demo
-        build: <+input>
-  stages:
-    - stage:
-        name: Build
-        identifier: Build
-        type: CI
-        spec:
-          cloneCodebase: true
-          infrastructure:
-            type: KubernetesDirect
-            spec:
-              connectorRef: widemos
-              namespace: default
-              serviceAccountName: harness-builder
-              automountServiceAccountToken: true
-              nodeSelector: {}
-              os: Linux
-          execution:
-            steps:
-              - step:
-                  type: Run
-                  name: Download Binaries
-                  identifier: Download_Binaries
-                  spec:
-                    connectorRef: account.DockerHub
-                    image: alpine
-                    shell: Sh
-                    command: |-
-                      apk add -U curl 
-                      curl -sSL https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.6/docker-credential-gcr_linux_amd64-2.1.6.tar.gz | tar -zx
-                      curl -sSL https://github.com/ko-build/ko/releases/download/v0.12.0/ko_0.12.0_Linux_x86_64.tar.gz | tar -zx
-
-                      mkdir -p /tools
-                      mv docker-credential-gcr  /tools
-                      mv ko /tools
-                      export PATH="$PATH:/tools"
-
-                      docker-credential-gcr configure-docker --registries="asia-south1-docker.pkg.dev"
-                    imagePullPolicy: IfNotPresent
-                  description: Download ko and docker-credential-gcr binaries
-              - step:
-                  type: Run
-                  name: ko build and push
-                  identifier: ko_build_and_push
-                  spec:
-                    connectorRef: account.DockerHub
-                    image: golang:1.19-alpine3.17
-                    shell: Sh
-                    command: |-
-                      export PATH=$PATH:/tools
-                      cd /harness/app
-                      ko build --bare --tag latest .
-                    envVariables:
-                      KO_DOCKER_REPO: asia-south1-docker.pkg.dev/pratyakshika/demos/lingua-greeter
-                    imagePullPolicy: IfNotPresent
-                    resources:
-                      limits:
-                        memory: 4G
-                        cpu: 2000m
-                  description: build and push the application using ko
-          sharedPaths:
-            - /tools
-            - /root/.docker
+```shell
+task deploy_harness_delegate
 ```
+  
+## Build Application
+
+**TODO** : Build and Push container image to GAR CI Pipeline
+
+### Deploy Application
+
+**TODO** : Cloud Run deploy CD Pipeline
+
+For more information check out [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity).
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_harness_delegate_service_account"></a> [harness\_delegate\_service\_account](#output\_harness\_delegate\_service\_account) | The Google Service Account 'harness-delegate' that will be used with 'harness-builder' Kubernetes SA |
+| <a name="output_kubeconfig_path"></a> [kubeconfig\_path](#output\_kubeconfig\_path) | Kubeconfig file |
+| <a name="output_kubernetes_cluster_host"></a> [kubernetes\_cluster\_host](#output\_kubernetes\_cluster\_host) | GKE Cluster Host |
+| <a name="output_kubernetes_cluster_name"></a> [kubernetes\_cluster\_name](#output\_kubernetes\_cluster\_name) | GKE Cluster Name |
+| <a name="output_project_id"></a> [project\_id](#output\_project\_id) | GCloud Project ID |
+| <a name="output_region"></a> [region](#output\_region) | GCloud Region |
+| <a name="output_translator_service_account"></a> [translator\_service\_account](#output\_translator\_service\_account) | The Google Service Account 'translator' |
+| <a name="output_zone"></a> [zone](#output\_zone) | GCloud Zone |
 
 ## License
 
