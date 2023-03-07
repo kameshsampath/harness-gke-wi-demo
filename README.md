@@ -10,14 +10,14 @@ In this demo we will build Harness CI pipeline that will use GKE as its build in
   - With a Service Account with roles
     - `Kubernetes Engine Admin` - to create GKE cluster
     - `Service Account` roles used to create/update/delete Service Account
-      - \_\_iam.serviceAccounts.actAs\_\_
-      - \_\_iam.serviceAccounts.get\_\_
-      - \_\_iam.serviceAccounts.create\_\_
-      - \_\_iam.serviceAccounts.delete\_\_
-      - \_\_iam.serviceAccounts.update\_\_
-      - \_\_iam.serviceAccounts.get\_\_
-      - \_\_iam.serviceAccounts.getIamPolicy\_\_
-      - \_\_iam.serviceAccounts.setIamPolicy\_\_
+      - iam.serviceAccounts.actAs
+      - iam.serviceAccounts.get
+      - iam.serviceAccounts.create
+      - iam.serviceAccounts.delete
+      - iam.serviceAccounts.update
+      - iam.serviceAccounts.get
+      - iam.serviceAccounts.getIamPolicy
+      - iam.serviceAccounts.setIamPolicy
      Or simply you can add `Service Account Admin` and `Service Account User` roles
     - `Compute Network Admin`   - to create the VPC networks
   - Enable Cloud Run API on the Google Cloud Project, if you plan to deploy to Google Cloud Run
