@@ -1,0 +1,17 @@
+formatter: "md table"
+
+header-from: "docs/.header.md"
+footer-from: "docs/.footer.md"
+
+content: |
+  {{ .Header }}
+
+  {{ .Inputs }}
+
+  {{ include "docs/.vars-example.md" }} 
+
+  {{ include "docs/.deployment.md" }} 
+  
+  {{ .Outputs }}
+
+  {{ .Footer }}
