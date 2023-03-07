@@ -1,11 +1,11 @@
+provider "kubernetes" {
+  config_path = "${path.module}/.kube/config"
+}
+
 provider "helm" {
   kubernetes {
     config_path = "${path.module}/.kube/config"
   }
-}
-
-provider "kubernetes" {
-  config_path = "${path.module}/.kube/config"
 }
 
 ## enable Workload Identity to Harness Delegate SA

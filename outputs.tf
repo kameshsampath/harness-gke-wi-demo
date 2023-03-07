@@ -38,18 +38,6 @@ output "harness_delegate_service_account" {
   description = "The Google Service Account 'harness-delegate' that will be used with 'harness-builder' Kubernetes SA"
 }
 
-output "ksa_patch" {
-  value = templatefile("templates/sa.tfpl", {
-    serviceAccountName : "${var.app_ksa}"
-    serviceAccountNamespace : "${var.app_namespace}",
-    googleServiceAccountEmail : (
-      length(google_service_account.translator_sa) == 0
-      ? ""
-      : "${google_service_account.translator_sa[0].email}"
-    )
-  })
-  description = "The Kubernetes Service Account patch"
-}
 
 
 
