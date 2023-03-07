@@ -10,14 +10,14 @@ In this demo we will build Harness CI pipeline that will use GKE as its build in
   - With a Service Account with roles
     - `Kubernetes Engine Admin` - to create GKE cluster
     - `Service Account` roles used to create/update/delete Service Account
-      - \_iam.serviceAccounts.actAs\_
-      - \_iam.serviceAccounts.get\_
-      - \_iam.serviceAccounts.create\_
-      - \_iam.serviceAccounts.delete\_
-      - \_iam.serviceAccounts.update\_
-      - \_iam.serviceAccounts.get\_
-      - \_iam.serviceAccounts.getIamPolicy\_
-      - \_iam.serviceAccounts.setIamPolicy\_
+      - \_\_iam.serviceAccounts.actAs\_\_
+      - \_\_iam.serviceAccounts.get\_\_
+      - \_\_iam.serviceAccounts.create\_\_
+      - \_\_iam.serviceAccounts.delete\_\_
+      - \_\_iam.serviceAccounts.update\_\_
+      - \_\_iam.serviceAccounts.get\_\_
+      - \_\_iam.serviceAccounts.getIamPolicy\_\_
+      - \_\_iam.serviceAccounts.setIamPolicy\_\_
      Or simply you can add `Service Account Admin` and `Service Account User` roles
     - `Compute Network Admin`   - to create the VPC networks
   - Enable Cloud Run API on the Google Cloud Project, if you plan to deploy to Google Cloud Run
@@ -46,12 +46,11 @@ git clone https://github.com/harness-apps/workload-identity-gke-demo.git && cd "
 export DEMO_HOME="$PWD"
 ```
 
-> **Tip**: If you are using zsh, then you can use the following commands
->
->```shell
-> take  https://github.com/harness-apps/workload-identity-gke-demo.git
-> export DEMO_HOME="$PWD"
->
+(OR) If you are using zsh, then you can use the following commands
+
+```shell
+take  https://github.com/harness-apps/workload-identity-gke-demo.git
+export DEMO_HOME="$PWD"
 ```
 
 ## Environment Setup
@@ -68,13 +67,13 @@ export GOOGLE_CLOUD_PROJECT="the google cloud project to use"
 
 You can find more information about gcloud cli configurations at <https://cloud.google.com/sdk/docs/configurations>.
 
-As you may need to override few terraform variables that you don't want to check in to VCS, add them to a file called `<name>.local.tfvars` and set the following environment variable to be picked up by terraform runs,
+As you may need to override few terraform variables that you don't want to check in to VCS, add them to a file called `.local.tfvars` and set the following environment variable to be picked up by terraform runs,
 
 ```shell
 export TFVARS_FILE=.local.tfvars
 ```
 
->**NOTE**: All `.local.tfvars` file are git ignored by this template.
+>\_\_NOTE\_\_: All `*.local.tfvars` file are git ignored by this template.
 
 Check the [Inputs](#inputs) section for all possible variables that are configurable.
 
