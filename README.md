@@ -144,25 +144,28 @@ task init
 
 ### Create GKE cluster
 
-The terraform apply will create the following Google Cloud resources,
+The terraform apply will creates a Kubernetes(GKE) Cluster,
 
 ```shell
 task create_cluster
 ```
-
-- A Kubernetes cluster on GKE
-- A Google Cloud VPC that will be used with GKE
   
 ### Deploy Harness Delegate
 
-> **IMPORTANT**: Ensure you have the following values set in the `.local.tfvars`
->
-> - `harness_account_id`
-> - `harness_delegate_token`
-> - `harness_delegate_name`
-> - `harness_delegate_namespace`
-> - `harness_manager_endpoint`
->
+Ensure you have the following values set in the `.local.tfvars` before running the `task apply` command.
+
+- Use **Account Id** from Account Overview as the value for **harness_account_id**,
+
+![account details](docs/images/account_details.png)
+
+- Use the `Harness Cluster Hosting Account` from the account details to find the matching endpoint URL. e.g for `prod-2` it is <https://app.harness.io/gratis> and set that as value for `harness_manager_endpoint`.
+
+- Copy the default token from **Projects** --> **Project Setup** --> **Delegates**(**Tokens**) and set it as value for `harness_delegate_token`.
+
+![copy](docs/images/account_details.png)
+
+- `harness_delegate_name`: defaults to **harness-delegate**
+- `harness_delegate_namespace`: defaults to **harness-delegate-ng**
 
 ```shell
 task deploy_harness_delegate
@@ -170,13 +173,60 @@ task deploy_harness_delegate
   
 ## Build Application
 
-**TODO** : Build and Push container image to GAR CI Pipeline
+Let us build the application using Harness CI pipeline.
+
+### Import Template
+
+The sources already has [build stage](.harness/ko_gar_build_push_1.yaml) template that can be used to create the CI pipeline.
+
+Navigate to your Harness Account, **Account Overview** --> **Organizations** and select **default** organization.
+
+![default org select](docs/images/account_overview.png)
+
+From the organization overview page select **Templates**,
+
+![templates select](docs/images/org_overview.png)
+
+Click **New Template** and choose **Import From Git** option,
+
+![import from git](docs/images/import_from_git.png)
+
+Fill the wizard with values as shown,
+
+![import from git details](docs/images/import_from_git_details.png)
+
+>**NOTE**: If you want to use your fork of `harness-apps/workload-identity-gke-demo` then update _Repository_ with your fork.
+>
+
+![import template successful](docs/images/import_template_successful.png)
+
+## Create Pipeline
+
+Navigate to **Builds** --> **Pipelines**, click **Create Pipeline**.
+
+![create pipeline](docs/images/create_pipeline.png)
+
+Click **Add Stage** and click **Use template**, choose **ko_gar_build_push** template that we imported earlier and click **Use template** to complete import.
+
+Enter details about the stage,
+
+![stage details](docs/images/stage_details.png)
+
+Click **Setup Stage** to crate the stage and fill other details i.e **Template Inputs**,
+
+![template inputs](docs/images/template_inputs.png)
+
+We use `default` namespace to run builder pods. The build pod runs with a Kubernetes Service Account(KSA) `harness-builder`.
+
+> **NOTE**:
+> The `harness-builder` KSA is mapped to Google IAM Service Account(GSA) `harness-delegate` to inherit the GCP roles using Workload Identity in this case to push the images to Google Artifact Registry(GAR).
+>
+
+Click **Run** to run the pipeline to see the image build and pushed to GAR.
 
 ### Deploy Application
 
 **TODO** : Cloud Run deploy CD Pipeline
-
-For more information check out [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity).
 
 ## Outputs
 
@@ -190,6 +240,13 @@ For more information check out [Workload Identity](https://cloud.google.com/kube
 | <a name="output_region"></a> [region](#output\_region) | GCloud Region |
 | <a name="output_translator_service_account"></a> [translator\_service\_account](#output\_translator\_service\_account) | The Google Service Account 'translator' |
 | <a name="output_zone"></a> [zone](#output\_zone) | GCloud Zone |
+
+## References
+
+- [Harness CI](https://app.harness.io/auth/#/signup/?module=ci?utm_source=internal&utm_medium=social&utm_campaign=community&utm_content=kamesh-github&utm_term=diy-demos)
+- [Developer Hub](https://developer.harness.io)
+- [Harness Delegate](https://developer.harness.io/tutorials/platform/install-delegate/)
+- [Workload Identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
 
 ## License
 
