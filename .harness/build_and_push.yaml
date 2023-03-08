@@ -1,0 +1,42 @@
+pipeline:
+  name: build and push
+  identifier: build_and_push
+  projectIdentifier: Google_Cloud_Demos
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: account.Github
+        repoName: harness-apps/workload-identity-gke-demo
+        build: <+input>
+  stages:
+    - stage:
+        name: Build
+        identifier: Build
+        template:
+          templateRef: org.ko_gar_build_push
+          versionLabel: "1"
+          templateInputs:
+            type: CI
+            spec:
+              infrastructure:
+                type: KubernetesDirect
+                spec:
+                  connectorRef: widemos
+                  namespace: default
+                  serviceAccountName: harness-builder
+              execution:
+                steps:
+                  - step:
+                      identifier: Download_Binaries
+                      type: Run
+                      spec:
+                        envVariables:
+                          REGISTRY_LIST: asia-south1-docker.pkg.dev
+                  - step:
+                      identifier: ko_build_and_push
+                      type: Run
+                      spec:
+                        envVariables:
+                          KO_DOCKER_REPO: asia-south1-docker.pkg.dev/pratyakshika/demos/lingua-greeter
