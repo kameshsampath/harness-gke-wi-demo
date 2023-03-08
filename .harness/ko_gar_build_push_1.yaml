@@ -3,8 +3,8 @@ template:
   identifier: ko_gar_build_push
   versionLabel: "1"
   type: Stage
-  projectIdentifier: <+input>
-  orgIdentifier: <+input>
+  projectIdentifier: Google_Cloud_Demos
+  orgIdentifier: default
   tags: {}
   spec:
     type: CI
