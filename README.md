@@ -170,6 +170,12 @@ Ensure you have the following values set in the `.local.tfvars` before running t
 ```shell
 task deploy_harness_delegate
 ```
+
+Wait for the delegate to be connected before proceeding to next steps. 
+
+You can view status of the delegate from the **Project** --> **Project Setup** --> **Delegates** page,
+
+![delegate status](docs/images/delegate_connected.png)
   
 ## Build Application
 
