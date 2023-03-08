@@ -3,7 +3,10 @@ template:
   identifier: ko_gar_build_push
   versionLabel: "1"
   type: Stage
+<<<<<<< HEAD
   projectIdentifier: Google_Cloud_Demos
+=======
+>>>>>>> d38cda9 (chore: move template to org level)
   orgIdentifier: default
   tags: {}
   spec:
