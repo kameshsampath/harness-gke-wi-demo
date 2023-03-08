@@ -73,7 +73,7 @@ As you may need to override few terraform variables that you don't want to check
 export TFVARS_FILE=.local.tfvars
 ```
 
->\_\_NOTE\_\_: All `*.local.tfvars` file are git ignored by this template.
+>**NOTE**: All `*.local.tfvars` file are git ignored by this template.
 
 Check the [Inputs](#inputs) section for all possible variables that are configurable.
 
