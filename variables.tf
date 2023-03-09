@@ -54,7 +54,7 @@ variable "app_use_workload_identity" {
 
 variable "install_harness_delegate" {
   description = "Flag to install Harness Delegate"
-  default     = true
+  default     = false
   type        = bool
 }
 

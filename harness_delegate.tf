@@ -1,10 +1,10 @@
 provider "kubernetes" {
-  config_path = "${path.module}/.kube/config"
+  config_path = fileexists("${path.module}/.kube/config") ? "${path.module}/.kube/config" : ""
 }
 
 provider "helm" {
   kubernetes {
-    config_path = "${path.module}/.kube/config"
+    config_path = fileexists("${path.module}/.kube/config") ? "${path.module}/.kube/config" : ""
   }
 }
 
