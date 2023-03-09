@@ -95,7 +95,7 @@ Check the [Inputs](#inputs) section for all possible variables that are configur
 | <a name="input_harness_delegate_replicas"></a> [harness\_delegate\_replicas](#input\_harness\_delegate\_replicas) | The Harness delegate kubernetes replica count | `number` | `1` | no |
 | <a name="input_harness_delegate_token"></a> [harness\_delegate\_token](#input\_harness\_delegate\_token) | Harness Delegate token | `string` | n/a | yes |
 | <a name="input_harness_manager_endpoint"></a> [harness\_manager\_endpoint](#input\_harness\_manager\_endpoint) | The Harness SaaS manager endpoint to use | `string` | n/a | yes |
-| <a name="input_install_harness_delegate"></a> [install\_harness\_delegate](#input\_install\_harness\_delegate) | Flag to install Harness Delegate | `bool` | `true` | no |
+| <a name="input_install_harness_delegate"></a> [install\_harness\_delegate](#input\_install\_harness\_delegate) | Flag to install Harness Delegate | `bool` | `false` | no |
 | <a name="input_kubernetes_version"></a> [kubernetes\_version](#input\_kubernetes\_version) | the kubernetes versions of the GKE clusters | `string` | `"1.24."` | no |
 | <a name="input_machine_type"></a> [machine\_type](#input\_machine\_type) | the google cloud machine types for each cluster node | `string` | `"e2-standard-4"` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | project id | `any` | n/a | yes |
@@ -230,9 +230,11 @@ We use `default` namespace to run builder pods. The build pod runs with a Kubern
 
 Click **Run** to run the pipeline to see the image build and pushed to GAR.
 
-### Deploy Application
+![Run Pipeline](docs/images/run_pipeline.png)
 
-**TODO** : Cloud Run deploy CD Pipeline
+As successful run would have pushed the image into GAR in this example its `asia-south1-docker.pkg.dev/pratyakshika/demos/lingua-greeter:latest`
+
+![Build Success](docs/images/build_success.png)
 
 ## Outputs
 
