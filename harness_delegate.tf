@@ -31,6 +31,18 @@ resource "google_project_iam_binding" "iam_binding_gar_push_repo_admin" {
   ]
 }
 
+# Adding permission to perform activties as k8s cluster adminstrator
+# allowing to create cluster roles/bindings and other setup admin activities
+resource "google_project_iam_binding" "iam_binding_container_admin" {
+  count   = var.install_harness_delegate ? 1 : 0
+  project = var.gcp_project
+  role    = "roles/container.admin"
+
+  members = [
+    google_service_account.harness_delegate_sa[0].member,
+  ]
+}
+
 # Install Harness Delegate using harness-delegate-ng helm chart
 # This install happens if and only if install_harness_delegate is true
 resource "helm_release" "harness_delegate" {
