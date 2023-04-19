@@ -87,6 +87,8 @@ Check the [Inputs](#inputs) section for all possible variables that are configur
 | <a name="input_builder_ksa"></a> [builder\_ksa](#input\_builder\_ksa) | the kubernetes service account that will be used to run the Harness delegate builder pods, which is enabled with Workload Identity | `string` | `"harness-builder"` | no |
 | <a name="input_builder_namespace"></a> [builder\_namespace](#input\_builder\_namespace) | the namespace where all Harness builder pods will be run | `string` | `"default"` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | the gke cluster name | `string` | `"my-demos"` | no |
+| <a name="input_gcp_project"></a> [gcp\_project](#input\_gcp\_project) | project id | `any` | n/a | yes |
+| <a name="input_gcp_region"></a> [gcp\_region](#input\_gcp\_region) | the gcp\_region or zone where the cluster will be created | `string` | `"asia-south1"` | no |
 | <a name="input_gke_num_nodes"></a> [gke\_num\_nodes](#input\_gke\_num\_nodes) | number of gke nodes | `number` | `2` | no |
 | <a name="input_harness_account_id"></a> [harness\_account\_id](#input\_harness\_account\_id) | Harness Account Id to use while installing the delegate | `string` | n/a | yes |
 | <a name="input_harness_delegate_image"></a> [harness\_delegate\_image](#input\_harness\_delegate\_image) | The Harness delegate image to use | `string` | `"harness/delegate:23.02.78306"` | no |
@@ -98,8 +100,6 @@ Check the [Inputs](#inputs) section for all possible variables that are configur
 | <a name="input_install_harness_delegate"></a> [install\_harness\_delegate](#input\_install\_harness\_delegate) | Flag to install Harness Delegate | `bool` | `false` | no |
 | <a name="input_kubernetes_version"></a> [kubernetes\_version](#input\_kubernetes\_version) | the kubernetes versions of the GKE clusters | `string` | `"1.24."` | no |
 | <a name="input_machine_type"></a> [machine\_type](#input\_machine\_type) | the google cloud machine types for each cluster node | `string` | `"e2-standard-4"` | no |
-| <a name="input_gcp_project"></a> [project\_id](#input\_project\_id) | project id | `any` | n/a | yes |
-| <a name="input_region"></a> [gcp_region](#input\_region) | the gcp_region or zone where the cluster will be created | `string` | `"asia-south1"` | no |
 | <a name="input_release_channel"></a> [release\_channel](#input\_release\_channel) | the GKE release channel to use | `string` | `"stable"` | no |
 
 ### Example
@@ -240,14 +240,14 @@ As successful run would have pushed the image into GAR in this example its `asia
 
 | Name | Description |
 |------|-------------|
+| <a name="output_gcp_project"></a> [gcp\_project](#output\_gcp\_project) | Google Cloud Project ID |
+| <a name="output_gcp_region"></a> [gcp\_region](#output\_gcp\_region) | GCloud gcp\_region |
 | <a name="output_harness_delegate_service_account"></a> [harness\_delegate\_service\_account](#output\_harness\_delegate\_service\_account) | The Google Service Account 'harness-delegate' that will be used with 'harness-builder' Kubernetes SA |
-| <a name="output_kubeconfig_path"></a> [kubeconfig\_path](#output\_kubeconfig\_path) | Kubeconfig file |
+| <a name="output_ksa_patch"></a> [ksa\_patch](#output\_ksa\_patch) | n/a |
 | <a name="output_kubernetes_cluster_host"></a> [kubernetes\_cluster\_host](#output\_kubernetes\_cluster\_host) | GKE Cluster Host |
 | <a name="output_kubernetes_cluster_name"></a> [kubernetes\_cluster\_name](#output\_kubernetes\_cluster\_name) | GKE Cluster Name |
-| <a name="output_gcp_project"></a> [project\_id](#output\_project\_id) | GCloud Project ID |
-| <a name="output_region"></a> [gcp_region](#output\_region) | GCloud gcp_region |
 | <a name="output_translator_service_account"></a> [translator\_service\_account](#output\_translator\_service\_account) | The Google Service Account 'translator' |
-| <a name="output_zone"></a> [zone](#output\_zone) | GCloud Zone |
+| <a name="output_zone"></a> [zone](#output\_zone) | Google Cloud Zone |
 
 ## References
 
