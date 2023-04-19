@@ -1,17 +1,3 @@
-# loading this provider without kubeconfig is not useful, hence set to empty
-# when no kubeconfig file is created
-provider "kubernetes" {
-  config_path = fileexists("${path.module}/.kube/config") ? "${path.module}/.kube/config" : ""
-}
-
-# loading this provider without kubeconfig is not useful, hence set to empty
-# when no kubeconfig file is created
-provider "helm" {
-  kubernetes {
-    config_path = fileexists("${path.module}/.kube/config") ? "${path.module}/.kube/config" : ""
-  }
-}
-
 ## enable Workload Identity to Harness Delegate SA
 
 # Google Service Account will be used when annotating the Kubernetes Service Account to do Workload Identity
@@ -28,8 +14,8 @@ resource "google_service_account_iam_binding" "harness_delegate_workload_identit
   role               = "roles/iam.workloadIdentityUser"
 
   members = [
-    "serviceAccount:${var.project_id}.svc.id.goog[${var.harness_delegate_namespace}/${var.harness_delegate_name}-delegate]",
-    "serviceAccount:${var.project_id}.svc.id.goog[${var.builder_namespace}/${var.builder_ksa}]",
+    "serviceAccount:${var.gcp_project}.svc.id.goog[${var.harness_delegate_namespace}/${var.harness_delegate_name}-delegate]",
+    "serviceAccount:${var.gcp_project}.svc.id.goog[${var.builder_namespace}/${var.builder_ksa}]",
   ]
 }
 
@@ -37,7 +23,7 @@ resource "google_service_account_iam_binding" "harness_delegate_workload_identit
 # the harness-delegate Service Account
 resource "google_project_iam_binding" "iam_binding_gar_push_repo_admin" {
   count   = var.install_harness_delegate ? 1 : 0
-  project = var.project_id
+  project = var.gcp_project
   role    = "roles/artifactregistry.createOnPushRepoAdmin"
 
   members = [
@@ -52,7 +38,6 @@ resource "helm_release" "harness_delegate" {
 
   depends_on = [
     google_container_cluster.primary,
-    local_file.kubeconfig,
     google_service_account.harness_delegate_sa
   ]
 

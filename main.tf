@@ -1,13 +1,3 @@
-# This is used to set local variable google_zone.
-data "google_compute_zones" "available" {
-  region = var.region
-}
-
-data "google_container_engine_versions" "supported" {
-  location       = local.google_zone
-  version_prefix = var.kubernetes_version
-}
-
 resource "random_shuffle" "az" {
   input        = data.google_compute_zones.available.names
   result_count = 1
@@ -38,7 +28,7 @@ resource "google_container_cluster" "primary" {
 
   # workload identity config
   workload_identity_config {
-    workload_pool = "${var.project_id}.svc.id.goog"
+    workload_pool = "${var.gcp_project}.svc.id.goog"
   }
 }
 
@@ -56,30 +46,14 @@ resource "google_container_node_pool" "primary_nodes" {
     ]
 
     labels = {
-      env = var.project_id
+      env = var.gcp_project
     }
 
     # preemptible  = true
     machine_type = var.machine_type
-    tags         = ["gke-node", "${var.project_id}-gke"]
+    tags         = ["gke-node", "${var.gcp_project}-gke"]
     metadata = {
       disable-legacy-endpoints = "true"
     }
   }
-}
-
-resource "local_file" "kubeconfig" {
-  depends_on = [
-    google_container_cluster.primary
-  ]
-  content = templatefile("${path.module}/templates/kubeconfig-template.tfpl", {
-    cluster_name    = google_container_cluster.primary.name
-    endpoint        = google_container_cluster.primary.endpoint
-    cluster_ca      = google_container_cluster.primary.master_auth[0].cluster_ca_certificate
-    client_cert     = google_container_cluster.primary.master_auth[0].client_certificate
-    client_cert_key = google_container_cluster.primary.master_auth[0].client_key
-  })
-  filename             = "${path.module}/.kube/config"
-  file_permission      = 0600
-  directory_permission = 0700
 }

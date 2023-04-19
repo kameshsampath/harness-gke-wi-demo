@@ -1,9 +1,10 @@
-variable "project_id" {
+variable "gcp_project" {
   description = "project id"
+  sensitive = true
 }
 
-variable "region" {
-  description = "the region or zone where the cluster will be created"
+variable "gcp_region" {
+  description = "the gcp_region or zone where the cluster will be created"
   default     = "asia-south1"
 }
 

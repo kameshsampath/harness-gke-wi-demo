@@ -98,13 +98,13 @@ Check the [Inputs](#inputs) section for all possible variables that are configur
 | <a name="input_install_harness_delegate"></a> [install\_harness\_delegate](#input\_install\_harness\_delegate) | Flag to install Harness Delegate | `bool` | `false` | no |
 | <a name="input_kubernetes_version"></a> [kubernetes\_version](#input\_kubernetes\_version) | the kubernetes versions of the GKE clusters | `string` | `"1.24."` | no |
 | <a name="input_machine_type"></a> [machine\_type](#input\_machine\_type) | the google cloud machine types for each cluster node | `string` | `"e2-standard-4"` | no |
-| <a name="input_project_id"></a> [project\_id](#input\_project\_id) | project id | `any` | n/a | yes |
-| <a name="input_region"></a> [region](#input\_region) | the region or zone where the cluster will be created | `string` | `"asia-south1"` | no |
+| <a name="input_gcp_project"></a> [project\_id](#input\_project\_id) | project id | `any` | n/a | yes |
+| <a name="input_region"></a> [gcp_region](#input\_region) | the gcp_region or zone where the cluster will be created | `string` | `"asia-south1"` | no |
 | <a name="input_release_channel"></a> [release\_channel](#input\_release\_channel) | the GKE release channel to use | `string` | `"stable"` | no |
 
 ### Example
   
-An example `my.local.tfvars` that will use a Google Cloud project **my-awesome-project**, create a two node GKE cluster named **wi-demo** in region **asia-south1** with Kubernetes version **1.24.** from **stable** release channel. The machine type of each cluster node will be **e2-standard-4**.
+An example `my.local.tfvars` that will use a Google Cloud project **my-awesome-project**, create a two node GKE cluster named **wi-demo** in gcp_region **asia-south1** with Kubernetes version **1.24.** from **stable** release channel. The machine type of each cluster node will be **e2-standard-4**.
 
 You may need to update following values with actuals from your Harness Account,
 
@@ -120,8 +120,8 @@ You may need to update following values with actuals from your Harness Account,
 >
 
 ```hcl
-project_id                 = "pratyakshika"
-region                     = "asia-south1"
+gcp_project                 = "pratyakshika"
+gcp_region                     = "asia-south1"
 cluster_name               = "wi-demos"
 kubernetes_version         = "1.24."
 install_harness_delegate   = true
@@ -244,8 +244,8 @@ As successful run would have pushed the image into GAR in this example its `asia
 | <a name="output_kubeconfig_path"></a> [kubeconfig\_path](#output\_kubeconfig\_path) | Kubeconfig file |
 | <a name="output_kubernetes_cluster_host"></a> [kubernetes\_cluster\_host](#output\_kubernetes\_cluster\_host) | GKE Cluster Host |
 | <a name="output_kubernetes_cluster_name"></a> [kubernetes\_cluster\_name](#output\_kubernetes\_cluster\_name) | GKE Cluster Name |
-| <a name="output_project_id"></a> [project\_id](#output\_project\_id) | GCloud Project ID |
-| <a name="output_region"></a> [region](#output\_region) | GCloud Region |
+| <a name="output_gcp_project"></a> [project\_id](#output\_project\_id) | GCloud Project ID |
+| <a name="output_region"></a> [gcp_region](#output\_region) | GCloud gcp_region |
 | <a name="output_translator_service_account"></a> [translator\_service\_account](#output\_translator\_service\_account) | The Google Service Account 'translator' |
 | <a name="output_zone"></a> [zone](#output\_zone) | GCloud Zone |
 

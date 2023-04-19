@@ -1,16 +1,17 @@
-output "region" {
-  value       = var.region
-  description = "GCloud Region"
+output "gcp_region" {
+  value       = var.gcp_region
+  description = "GCloud gcp_region"
 }
 
-output "project_id" {
-  value       = var.project_id
-  description = "GCloud Project ID"
+output "gcp_project" {
+  value       = var.gcp_project
+  description = "Google Cloud Project ID"
+  sensitive = true
 }
 
 output "zone" {
   value       = local.google_zone
-  description = "GCloud Zone"
+  description = "Google Cloud Zone"
 }
 
 output "kubernetes_cluster_name" {
@@ -21,11 +22,6 @@ output "kubernetes_cluster_name" {
 output "kubernetes_cluster_host" {
   value       = google_container_cluster.primary.endpoint
   description = "GKE Cluster Host"
-}
-
-output "kubeconfig_path" {
-  value       = abspath(local_file.kubeconfig.filename)
-  description = "Kubeconfig file"
 }
 
 output "translator_service_account" {

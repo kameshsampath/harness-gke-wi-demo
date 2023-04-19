@@ -10,13 +10,13 @@ resource "google_service_account_iam_binding" "workload_identity_iam" {
   role               = "roles/iam.workloadIdentityUser"
 
   members = [
-    "serviceAccount:${var.project_id}.svc.id.goog[${var.app_namespace}/${var.app_ksa}]",
+    "serviceAccount:${var.gcp_project}.svc.id.goog[${var.app_namespace}/${var.app_ksa}]",
   ]
 }
 
 resource "google_project_iam_binding" "iam_binding_translate_users" {
   count   = var.app_use_workload_identity ? 1 : 0
-  project = var.project_id
+  project = var.gcp_project
   role    = "roles/cloudtranslate.user"
 
   members = [
