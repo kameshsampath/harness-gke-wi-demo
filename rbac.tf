@@ -24,14 +24,3 @@ resource "google_project_iam_binding" "iam_binding_translate_users" {
   ]
 }
 
-resource "local_file" "app_ksa" {
-  count = var.app_use_workload_identity ? 1 : 0
-  content = templatefile("templates/sa.tfpl", {
-    serviceAccountName : "${var.app_ksa}"
-    serviceAccountNamespace : "${var.app_namespace}",
-    googleServiceAccountEmail : "${google_service_account.translator_sa[0].email}"
-  })
-  filename             = "${path.module}/k8s/sa.yaml"
-  file_permission      = 0600
-  directory_permission = 0700
-}

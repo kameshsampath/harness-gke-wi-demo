@@ -6,7 +6,7 @@ output "gcp_region" {
 output "gcp_project" {
   value       = var.gcp_project
   description = "Google Cloud Project ID"
-  sensitive = true
+  sensitive   = true
 }
 
 output "zone" {
@@ -32,6 +32,14 @@ output "translator_service_account" {
 output "harness_delegate_service_account" {
   value       = length(google_service_account.harness_delegate_sa) == 0 ? "" : google_service_account.harness_delegate_sa[0].email
   description = "The Google Service Account 'harness-delegate' that will be used with 'harness-builder' Kubernetes SA"
+}
+
+output "ksa_patch" {
+  value = templatefile("templates/sa.tfpl", {
+    serviceAccountName : "${var.app_ksa}"
+    serviceAccountNamespace : "${var.app_namespace}",
+    googleServiceAccountEmail : "${google_service_account.translator_sa[0].email}"
+  })
 }
 
 
