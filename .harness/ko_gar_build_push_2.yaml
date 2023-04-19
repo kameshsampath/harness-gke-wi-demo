@@ -28,7 +28,7 @@ template:
               name: Download Binaries
               identifier: Download_Binaries
               spec:
-                connectorRef: account.DockerHub
+                connectorRef: account.harnessImage
                 image: alpine
                 shell: Sh
                 command: |-
@@ -56,10 +56,11 @@ template:
                 command: |-
                   export PATH=$PATH:/tools
                   docker-credential-gcr version && ko version
-                  cd /harness/app
+                  cd $APP_DIR
                   ko build --bare --tags=latest .
                 envVariables:
                   KO_DOCKER_REPO: <+input>
+                  APP_DIR: <+input>
                 imagePullPolicy: IfNotPresent
                 resources:
                   limits:
