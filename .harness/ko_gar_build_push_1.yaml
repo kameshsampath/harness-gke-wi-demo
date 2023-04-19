@@ -1,7 +1,7 @@
 template:
   name: ko_gar_build_push
   identifier: ko_gar_build_push
-  versionLabel: "1"
+  versionLabel: "2"
   type: Stage
   orgIdentifier: default
   tags: {}
