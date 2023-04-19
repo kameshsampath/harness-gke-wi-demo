@@ -1,7 +1,7 @@
 template:
   name: ko_gar_build_push
   identifier: ko_gar_build_push
-  versionLabel: "2"
+  versionLabel: "3"
   type: Stage
   orgIdentifier: default
   tags: {}
@@ -19,7 +19,8 @@ template:
           namespace: <+input>
           serviceAccountName: <+input>
           automountServiceAccountToken: true
-          nodeSelector: {}
+          nodeSelector:
+            iam.gke.io/gke-metadata-server-enabled: "true"
           os: Linux
       execution:
         steps:
