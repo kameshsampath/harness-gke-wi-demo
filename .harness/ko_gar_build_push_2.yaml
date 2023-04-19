@@ -1,7 +1,7 @@
 template:
   name: ko_gar_build_push
   identifier: ko_gar_build_push
-  versionLabel: "1"
+  versionLabel: "2"
   type: Stage
   orgIdentifier: default
   tags: {}
@@ -33,8 +33,8 @@ template:
                 shell: Sh
                 command: |-
                   apk add -U curl 
-                  curl -sSL https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.6/docker-credential-gcr_linux_amd64-2.1.6.tar.gz | tar -zx
-                  curl -sSL https://github.com/ko-build/ko/releases/download/v0.12.0/ko_0.12.0_Linux_x86_64.tar.gz | tar -zx
+                  curl -sSL https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.8/docker-credential-gcr_linux_amd64-2.1.8.tar.gz | tar -zx
+                  curl -sSL https://github.com/ko-build/ko/releases/download/v0.13.0/ko_0.13.0_Linux_x86_64.tar.gz | tar -zx
 
                   mkdir -p /tools
                   mv docker-credential-gcr ko /tools
@@ -50,7 +50,7 @@ template:
               name: build and push
               identifier: ko_build_and_push
               spec:
-                connectorRef: account.DockerHub
+                connectorRef: account.harnessImage
                 image: golang:1.19-alpine3.17
                 shell: Sh
                 command: |-
