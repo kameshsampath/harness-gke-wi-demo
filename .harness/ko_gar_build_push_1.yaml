@@ -50,7 +50,7 @@ template:
               name: build and push
               identifier: ko_build_and_push
               spec:
-                connectorRef: account.DockerHub
+                connectorRef: account.harnessImage
                 image: golang:1.19-alpine3.17
                 shell: Sh
                 command: |-
