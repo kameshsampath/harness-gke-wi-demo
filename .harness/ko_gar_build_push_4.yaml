@@ -58,9 +58,10 @@ template:
                   export PATH=$PATH:/tools
                   docker-credential-gcr version && ko version
                   cd $APP_DIR
-                  image_repo=$KO_DOCKER_REPO
-                  image_tag=<+codebase.shortCommitSha>
-                  image_digest=$(ko build --bare --tags=$image_tag .)
+                  image_repo="$KO_DOCKER_REPO"
+                  image_tag="<+codebase.shortCommitSha>"
+                  ko build --bare --image-refs=img.digest --tags=$image_tag .
+                  image_digest="$(cat img.digest)"
                 envVariables:
                   KO_DOCKER_REPO: <+input>
                   APP_DIR: <+input>
@@ -97,7 +98,7 @@ template:
                   OCI_MANIFESTS_TAG: <+input>
                   KUSTOMIZE_DIR: <+input>
                   OCI_PROVIDER: <+input>
-                  APPLICATION_IMAGE_REPO: <+steps.ko_build_and_push.output.outputVariables.image_repo>
+                  APPLICATION_IMAGE: <+steps.ko_build_and_push.output.outputVariables.image_repo>
                   APPLICATION_IMAGE_TAG: <+steps.ko_build_and_push.output.outputVariables.image_tag>
                   APPLICATION_IMAGE_DIGEST: <+steps.ko_build_and_push.output.outputVariables.image_digest>
                   TRANSLATOR_GSA: <+input>
