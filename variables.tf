@@ -105,3 +105,13 @@ variable "builder_ksa" {
   description = "the kubernetes service account that will be used to run the Harness delegate builder pods, which is enabled with Workload Identity"
   default     = "harness-builder"
 }
+
+variable "flux_system_namespace" {
+  description = "The Kubernetes namespace where the flux is installed"
+  default     = "flux-system"
+}
+
+variable "flux_source_controller_ksa" {
+  description = "The Kubernetes namespace where the flux is installed"
+  default     = "source-controller"
+}
