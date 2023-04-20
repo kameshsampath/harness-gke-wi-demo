@@ -87,20 +87,14 @@ resource "helm_release" "harness_delegate" {
   }
 }
 
-
-data "kubectl_file_documents" "sa_yaml" {
-  content = templatefile("${path.module}/templates/builder-sa.tfpl",{
-    serviceAccountName = "${var.builder_ksa}"
-    serviceAccountNamespace = "${var.builder_namespace}"
-    googleServiceAccountEmail = "${google_service_account.harness_delegate_sa.email}"
-  })
-}
-
 # Create harness-builder Kubernetes Service Account that will be used
 # by Harness Pipeline delegate pods.
 # This create happens if and only if install_harness_delegate is true
 resource "kubectl_manifest" "create_builder_sa" {
-  for_each  = data.kubectl_file_documents.sa_yaml.manifests
-  yaml_body = each.value
+  yaml_body = templatefile("${path.module}/templates/builder-sa.tfpl", {
+    serviceAccountName        = "${var.builder_ksa}"
+    serviceAccountNamespace   = "${var.builder_namespace}"
+    googleServiceAccountEmail = "${google_service_account.harness_delegate_sa.email}"
+  })
 }
 
