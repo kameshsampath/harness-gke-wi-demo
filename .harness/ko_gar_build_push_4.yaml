@@ -81,11 +81,12 @@ template:
                     --path="$KUBERNETES_MANIFESTS_DIR" \
                     --source="<+codebase.repoUrl>" \
                     --revision="<+codebase.shortCommitSha>" \
-                    --provider <+input>
+                    --provider $OCI_PROVIDER
                 envVariables:
                   OCI_MANIFESTS_REPO: <+input>
                   OCI_MANIFESTS_TAG: <+input>
                   KUBERNETES_MANIFESTS_DIR: <+input>
+                  OCI_PROVIDER: <+input>
                 imagePullPolicy: Always
                 resources:
                   limits:
