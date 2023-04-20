@@ -53,12 +53,6 @@ variable "app_use_workload_identity" {
   type        = bool
 }
 
-variable "install_harness_delegate" {
-  description = "Flag to install Harness Delegate"
-  default     = false
-  type        = bool
-}
-
 variable "harness_account_id" {
   description = "Harness Account Id to use while installing the delegate"
   type        = string

@@ -2,15 +2,13 @@
 
 # Google Service Account will be used when annotating the Kubernetes Service Account to do Workload Identity
 resource "google_service_account" "harness_delegate_sa" {
-  count        = var.install_harness_delegate ? 1 : 0
   account_id   = "harness-delegate"
   display_name = "Google Service Account that will be used for Harness CI Workload Identity use cases"
 }
 
 # Binding roles/iam.workloadIdentityUser role to Google Service Account harness-delegate
 resource "google_service_account_iam_binding" "harness_delegate_workload_identity_iam" {
-  count              = var.install_harness_delegate ? 1 : 0
-  service_account_id = google_service_account.harness_delegate_sa[0].name
+  service_account_id = google_service_account.harness_delegate_sa.name
   role               = "roles/iam.workloadIdentityUser"
 
   members = [
@@ -22,27 +20,23 @@ resource "google_service_account_iam_binding" "harness_delegate_workload_identit
 # Adding permission to push container images to Google Artifact Registry using 
 # the harness-delegate Service Account
 resource "google_project_iam_member" "iam_binding_gar_push_repo_admin" {
-  count   = var.install_harness_delegate ? 1 : 0
   project = var.gcp_project
   role    = "roles/artifactregistry.createOnPushRepoAdmin"
-  member  = google_service_account.harness_delegate_sa[0].member
+  member  = google_service_account.harness_delegate_sa.member
 
 }
 
 # Adding permission to perform activties as k8s cluster adminstrator
 # allowing to create cluster roles/bindings and other setup admin activities
 resource "google_project_iam_member" "iam_member_container_admin" {
-  count   = var.install_harness_delegate ? 1 : 0
   project = var.gcp_project
   role    = "roles/container.admin"
-  member  = google_service_account.harness_delegate_sa[0].member
+  member  = google_service_account.harness_delegate_sa.member
 }
 
 # Install Harness Delegate using harness-delegate-ng helm chart
 # This install happens if and only if install_harness_delegate is true
 resource "helm_release" "harness_delegate" {
-  count = var.install_harness_delegate ? 1 : 0
-
   depends_on = [
     google_container_cluster.primary,
     google_service_account.harness_delegate_sa
@@ -89,17 +83,16 @@ resource "helm_release" "harness_delegate" {
   # Enables Workload Identity for the Delegate SA
   set {
     name  = "serviceAccount.annotations.iam\\.gke\\.io\\/gcp-service-account"
-    value = google_service_account.harness_delegate_sa[0].email
+    value = google_service_account.harness_delegate_sa.email
   }
 }
 
 
 data "kubectl_file_documents" "sa_yaml" {
-  count = var.install_harness_delegate ? 1 : 0
   content = templatefile("${path.module}/templates/builder-sa.tfpl",{
     serviceAccountName = "${var.builder_ksa}"
     serviceAccountNamespace = "${var.builder_namespace}"
-    googleServiceAccountEmail = "${google_service_account.harness_delegate_sa[0].email}"
+    googleServiceAccountEmail = "${google_service_account.harness_delegate_sa.email}"
   })
 }
 
@@ -107,24 +100,7 @@ data "kubectl_file_documents" "sa_yaml" {
 # by Harness Pipeline delegate pods.
 # This create happens if and only if install_harness_delegate is true
 resource "kubectl_manifest" "create_builder_sa" {
-  for_each  = data.kubectl_file_documents.sa_yaml[0].manifests
+  for_each  = data.kubectl_file_documents.sa_yaml.manifests
   yaml_body = each.value
 }
 
-# resource "kubernetes_manifest" "builder_ksa" {
-#   depends_on = [
-#     google_container_cluster.primary
-#   ]
-#   count = var.install_harness_delegate ? 1 : 0
-#   manifest = {
-#     "apiVersion" = "v1"
-#     "kind"       = "ServiceAccount"
-#     "metadata" = {
-#       "name"      = "${var.builder_ksa}"
-#       "namespace" = "${var.builder_namespace}"
-#       "annotations" = {
-#         "iam.gke.io/gcp-service-account" = "${google_service_account.harness_delegate_sa[0].email}"
-#       }
-#     }
-#   }
-# }

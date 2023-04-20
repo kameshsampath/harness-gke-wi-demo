@@ -30,7 +30,7 @@ output "translator_service_account" {
 }
 
 output "harness_delegate_service_account" {
-  value       = length(google_service_account.harness_delegate_sa) == 0 ? "" : google_service_account.harness_delegate_sa[0].email
+  value       = length(google_service_account.harness_delegate_sa) == 0 ? "" : google_service_account.harness_delegate_sa.email
   description = "The Google Service Account 'harness-delegate' that will be used with 'harness-builder' Kubernetes SA"
 }
 
