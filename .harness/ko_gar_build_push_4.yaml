@@ -1,0 +1,94 @@
+template:
+  name: ko_gar_build_push
+  identifier: ko_gar_build_push
+  versionLabel: "4"
+  type: Stage
+  orgIdentifier: default
+  tags: {}
+  spec:
+    type: CI
+    spec:
+      cloneCodebase: true
+      sharedPaths:
+        - /root/.docker
+        - /tools
+      infrastructure:
+        type: KubernetesDirect
+        spec:
+          connectorRef: <+input>
+          namespace: <+input>
+          serviceAccountName: <+input>
+          automountServiceAccountToken: true
+          nodeSelector:
+            iam.gke.io/gke-metadata-server-enabled: "true"
+          os: Linux
+      execution:
+        steps:
+          - step:
+              type: Run
+              name: Download Binaries
+              identifier: Download_Binaries
+              spec:
+                connectorRef: account.DockerHub
+                image: alpine
+                shell: Sh
+                command: |-
+                  apk add -U curl 
+                  curl -sSL https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v2.1.8/docker-credential-gcr_linux_amd64-2.1.8.tar.gz | tar -zx
+                  curl -sSL https://github.com/ko-build/ko/releases/download/v0.13.0/ko_0.13.0_Linux_x86_64.tar.gz | tar -zx
+
+                  mkdir -p /tools
+                  mv docker-credential-gcr ko /tools
+                  export PATH="$PATH:/tools"
+
+                  docker-credential-gcr configure-docker --registries="$REGISTRY_LIST"
+                envVariables:
+                  REGISTRY_LIST: <+input>
+                imagePullPolicy: IfNotPresent
+              description: Download ko and docker-credential-gcr binaries
+          - step:
+              type: Run
+              name: build and push
+              identifier: ko_build_and_push
+              spec:
+                connectorRef: account.DockerHub
+                image: golang:1.19-alpine3.17
+                shell: Sh
+                command: |-
+                  export PATH=$PATH:/tools
+                  docker-credential-gcr version && ko version
+                  cd $APP_DIR
+                  ko build --bare --tags=latest .
+                envVariables:
+                  KO_DOCKER_REPO: <+input>
+                  APP_DIR: <+input>
+                imagePullPolicy: IfNotPresent
+                resources:
+                  limits:
+                    memory: 4G
+                    cpu: 2000m
+              description: Build application using ko and push the built container image to Google Artifact Registry
+          - step:
+              type: Run
+              name: build manifests
+              identifier: build_manifests
+              spec:
+                connectorRef: account.DockerHub
+                image: kameshsampath/kube-dev-tools
+                shell: Sh
+                command: |-
+                  flux push artifact oci://$OCI_MANIFESTS_REPO:$OCI_MANIFESTS_TAG \
+                    --path="$KUBERNETES_MANIFESTS_DIR" \
+                    --source="<+codebase.repoUrl>" \
+                    --revision="<+codebase.shortCommitSha>" \
+                    --provider <+input>
+                envVariables:
+                  OCI_MANIFESTS_REPO: <+input>
+                  OCI_MANIFESTS_TAG: <+input>
+                  KUBERNETES_MANIFESTS_DIR: <+input>
+                imagePullPolicy: Always
+                resources:
+                  limits:
+                    memory: 2G
+                    cpu: 1000m
+              description: Build OCI manifests
