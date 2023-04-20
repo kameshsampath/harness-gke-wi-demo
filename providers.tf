@@ -3,7 +3,6 @@ provider "google" {
   region  = var.gcp_region
 }
 
-
 provider "helm" {
   kubernetes {
     host                   = "https://${google_container_cluster.primary.endpoint}"
@@ -12,11 +11,14 @@ provider "helm" {
   }
 }
 
-
 # loading this provider without kubeconfig is not useful, hence set to empty
 # when no kubeconfig file is created
 provider "kubernetes" {
   host                   = "https://${google_container_cluster.primary.endpoint}"
   cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth.0.cluster_ca_certificate)
   token                  = data.google_client_config.current.access_token
+}
+
+provider "kubectl" {
+  load_config_file = "false"
 }
