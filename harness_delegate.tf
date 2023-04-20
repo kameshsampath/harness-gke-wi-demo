@@ -91,6 +91,9 @@ resource "helm_release" "harness_delegate" {
 # by Harness Pipeline delegate pods.
 # This create happens if and only if install_harness_delegate is true
 resource "kubectl_manifest" "create_builder_sa" {
+  depends_on = [
+    google_container_cluster.primary
+  ]
   yaml_body = templatefile("${path.module}/templates/builder-sa.tfpl", {
     serviceAccountName        = "${var.builder_ksa}"
     serviceAccountNamespace   = "${var.builder_namespace}"
