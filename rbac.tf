@@ -21,6 +21,14 @@ resource "google_project_iam_member" "iam_binding_translate_users" {
   member = "${google_service_account.translator_sa[0].member}"
 }
 
+# allow translator service account to pull the images from GAR
+resource "google_project_iam_member" "iam_binding_translator_gar_reader" {
+  count   = var.app_use_workload_identity ? 1 : 0
+  project = var.gcp_project
+  role    = "roles/artifactregistry.reader"
+  member = "${google_service_account.translator_sa[0].member}"
+}
+
 ## Permissions for FluxCD to read from GAR
 resource "google_service_account" "gar_reader_sa" {
   account_id   = "gar-reader"
