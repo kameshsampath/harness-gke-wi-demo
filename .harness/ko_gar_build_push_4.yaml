@@ -60,8 +60,8 @@ template:
                   cd $APP_DIR
                   image_repo="$KO_DOCKER_REPO"
                   image_tag="<+codebase.shortCommitSha>"
-                  ko build --bare --image-refs=img.digest --tags=$image_tag .
-                  image_digest="$(cat img.digest)"
+                  image_fqn=$(ko build --bare --tags=$image_tag .)
+                  image_digest=$(echo "$image_fqn" | cut -d '@' -f2)
                 envVariables:
                   KO_DOCKER_REPO: <+input>
                   APP_DIR: <+input>
