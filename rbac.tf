@@ -14,13 +14,10 @@ resource "google_service_account_iam_binding" "workload_identity_iam" {
   ]
 }
 
-resource "google_project_iam_binding" "iam_binding_translate_users" {
+resource "google_project_iam_member" "iam_binding_translate_users" {
   count   = var.app_use_workload_identity ? 1 : 0
   project = var.gcp_project
   role    = "roles/cloudtranslate.user"
-
-  members = [
-    google_service_account.translator_sa[0].member,
-  ]
+  member = "${google_service_account.translator_sa[0].member}"
 }
 
