@@ -21,26 +21,21 @@ resource "google_service_account_iam_binding" "harness_delegate_workload_identit
 
 # Adding permission to push container images to Google Artifact Registry using 
 # the harness-delegate Service Account
-resource "google_project_iam_binding" "iam_binding_gar_push_repo_admin" {
+resource "google_project_iam_member" "iam_binding_gar_push_repo_admin" {
   count   = var.install_harness_delegate ? 1 : 0
   project = var.gcp_project
   role    = "roles/artifactregistry.createOnPushRepoAdmin"
-
-  members = [
-    google_service_account.harness_delegate_sa[0].member,
-  ]
+  member  = google_service_account.harness_delegate_sa[0].member
+  
 }
 
 # Adding permission to perform activties as k8s cluster adminstrator
 # allowing to create cluster roles/bindings and other setup admin activities
-resource "google_project_iam_binding" "iam_binding_container_admin" {
+resource "google_project_iam_member" "iam_member_container_admin" {
   count   = var.install_harness_delegate ? 1 : 0
   project = var.gcp_project
   role    = "roles/container.admin"
-
-  members = [
-    google_service_account.harness_delegate_sa[0].member,
-  ]
+  member = google_service_account.harness_delegate_sa[0].member
 }
 
 # Install Harness Delegate using harness-delegate-ng helm chart
