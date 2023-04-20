@@ -77,19 +77,21 @@ template:
                 image: kameshsampath/kube-dev-tools
                 shell: Sh
                 command: |-
-                  flux push artifact oci://$OCI_MANIFESTS_REPO:$OCI_MANIFESTS_TAG \
-                    --path="$KUBERNETES_MANIFESTS_DIR" \
+                  kustomize build "$KUSTOMIZE_DIR" | envsubst | flux push artifact \
+                    oci://$OCI_MANIFESTS_REPO:$OCI_MANIFESTS_TAG \
+                    --path=- \
                     --source="<+codebase.repoUrl>" \
                     --revision="<+codebase.shortCommitSha>" \
                     --provider $OCI_PROVIDER
                 envVariables:
                   OCI_MANIFESTS_REPO: <+input>
                   OCI_MANIFESTS_TAG: <+input>
-                  KUBERNETES_MANIFESTS_DIR: <+input>
+                  KUSTOMIZE_DIR: <+input>
                   OCI_PROVIDER: <+input>
+                  TRANSLATOR_GSA: <+input>
                 imagePullPolicy: Always
                 resources:
                   limits:
                     memory: 2G
                     cpu: 1000m
-              description: Build OCI manifests
+              description: Build OCI image from kustomize configurations and push it to the OCI registry.
