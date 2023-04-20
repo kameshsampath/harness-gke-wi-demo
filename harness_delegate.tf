@@ -26,7 +26,7 @@ resource "google_project_iam_member" "iam_binding_gar_push_repo_admin" {
   project = var.gcp_project
   role    = "roles/artifactregistry.createOnPushRepoAdmin"
   member  = google_service_account.harness_delegate_sa[0].member
-  
+
 }
 
 # Adding permission to perform activties as k8s cluster adminstrator
@@ -35,7 +35,7 @@ resource "google_project_iam_member" "iam_member_container_admin" {
   count   = var.install_harness_delegate ? 1 : 0
   project = var.gcp_project
   role    = "roles/container.admin"
-  member = google_service_account.harness_delegate_sa[0].member
+  member  = google_service_account.harness_delegate_sa[0].member
 }
 
 # Install Harness Delegate using harness-delegate-ng helm chart
@@ -93,23 +93,38 @@ resource "helm_release" "harness_delegate" {
   }
 }
 
+
+data "kubectl_file_documents" "sa_yaml" {
+  count = var.install_harness_delegate ? 1 : 0
+  content = templatefile("${path.module}/templates/builder-sa.tfpl",{
+    serviceAccountName = "${var.builder_ksa}"
+    serviceAccountNamespace = "${var.builder_namespace}"
+    googleServiceAccountEmail = "${google_service_account.harness_delegate_sa[0].email}"
+  })
+}
+
 # Create harness-builder Kubernetes Service Account that will be used
 # by Harness Pipeline delegate pods.
 # This create happens if and only if install_harness_delegate is true
-resource "kubernetes_manifest" "builder_ksa" {
-  depends_on = [
-    google_container_cluster.primary
-  ]
-  count = var.install_harness_delegate ? 1 : 0
-  manifest = {
-    "apiVersion" = "v1"
-    "kind"       = "ServiceAccount"
-    "metadata" = {
-      "name"      = "${var.builder_ksa}"
-      "namespace" = "${var.builder_namespace}"
-      "annotations" = {
-        "iam.gke.io/gcp-service-account" = "${google_service_account.harness_delegate_sa[0].email}"
-      }
-    }
-  }
+resource "kubectl_manifest" "create_builder_sa" {
+  for_each  = data.kubectl_file_documents.sa_yaml[0].manifests
+  yaml_body = each.value
 }
+
+# resource "kubernetes_manifest" "builder_ksa" {
+#   depends_on = [
+#     google_container_cluster.primary
+#   ]
+#   count = var.install_harness_delegate ? 1 : 0
+#   manifest = {
+#     "apiVersion" = "v1"
+#     "kind"       = "ServiceAccount"
+#     "metadata" = {
+#       "name"      = "${var.builder_ksa}"
+#       "namespace" = "${var.builder_namespace}"
+#       "annotations" = {
+#         "iam.gke.io/gcp-service-account" = "${google_service_account.harness_delegate_sa[0].email}"
+#       }
+#     }
+#   }
+# }
