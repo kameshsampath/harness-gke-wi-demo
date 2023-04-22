@@ -26,6 +26,15 @@ resource "google_project_iam_member" "iam_binding_gar_push_repo_admin" {
 
 }
 
+# Allowing harness-builder KSA to use the harness-delegate GSA to 
+# create objects in GCS
+resource "google_project_iam_member" "iam_binding_object_admin" {
+  project = var.gcp_project
+  role    = "roles/storage.objectAdmin"
+  member  = google_service_account.harness_delegate_sa.member
+
+}
+
 # Install Harness Delegate using harness-delegate-ng helm chart
 # This install happens if and only if install_harness_delegate is true
 resource "helm_release" "harness_delegate" {
