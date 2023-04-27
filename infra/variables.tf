@@ -87,7 +87,7 @@ variable "harness_manager_endpoint" {
 variable "harness_delegate_image" {
   description = "The Harness delegate image to use"
   type        = string
-  default     = "harness/delegate:23.02.78306"
+  default     = "harness/delegate:23.04.78916"
 }
 
 variable "harness_delegate_replicas" {

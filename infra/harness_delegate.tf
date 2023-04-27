@@ -51,7 +51,7 @@ resource "helm_release" "harness_delegate" {
 
   set {
     name  = "upgrader.enabled"
-    value = "false"
+    value = "true"
   }
 
   set_sensitive {
